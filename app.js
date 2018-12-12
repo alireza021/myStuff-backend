@@ -11,7 +11,7 @@ const itemsData = require('./data/items.js')
 const app = express();
 
 app.use(bodyparser.json());
-mongoose.connect('mongodb://alireza1:alireza1@ds115874.mlab.com:15874/mystuff-webapi');
+mongoose.connect('mongodb://alireza:alireza1@ds115874.mlab.com:15874/mystuff-webapi');
 
 app.use(
   cors({
