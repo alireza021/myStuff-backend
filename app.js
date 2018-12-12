@@ -47,4 +47,4 @@ app.get('/api/categories', function(req, res){
 
 
 
-app.listen(8000, () => console.log('Listening...'));
+app.listen(process.env.PORT || 8000, () => console.log('Listening...'));
