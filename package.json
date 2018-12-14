@@ -4,8 +4,7 @@
   "description": "backend for mystuff webapp",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js",
-    "test": "jest"
+    "start": "node app.js"
   },
   "author": "Alireza",
   "license": "ISC",
