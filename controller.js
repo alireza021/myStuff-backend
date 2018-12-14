@@ -3,10 +3,13 @@ var { check, validationResult } = require("express-validator/check");
 const bcrypt = require("bcrypt");
 const User = require("./models/User.js");
 const Post = require("./models/Post.js");
+const categoriesData = require('./data/categories.js')
 
 module.exports = function(app) {
   //-----------------------REGISTRATION---------------------------
 
+
+  //Registration validation
   const regValidation = [
     check("email")
       .not()
@@ -65,6 +68,7 @@ module.exports = function(app) {
     })
   ];
 
+  //Register user if validation is successful
   function register(req, res) {
     var errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -75,15 +79,17 @@ module.exports = function(app) {
     user
       .save()
       .then(user => {
-        return res.json(user);
+        return res.status(200).json(user);
       })
       .catch(err => res.send(err));
   }
   app.post("/api/register", regValidation, register);
-  app.get("/", (req, res) => res.json("sdasdsa"));
+
+
 
   //-----------------------LOGIN---------------------------
 
+  //Login validation
   const logValidation = [
     check("email")
       .not()
@@ -95,6 +101,7 @@ module.exports = function(app) {
       .withMessage("Password is required")
   ];
 
+  //Login user if validation is successful
   function loginUser(req, res) {
     var errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -114,7 +121,7 @@ module.exports = function(app) {
         req.session.isLoggedIn = true;
         return res.send({ message: "You are signed in" });
         console.log("you are signed in");
-        res.send(user);
+        res.status(200).send(user);
       })
       .catch(function(error) {
         console.log(error);
@@ -124,6 +131,7 @@ module.exports = function(app) {
 
   //--------------------------CHECK LOGIN---------------------------------
 
+  //return true if user is logged in
   function isLoggedIn(req, res, next) {
     if (req.session.isLoggedIn) {
       res.send(true);
@@ -133,26 +141,32 @@ module.exports = function(app) {
   }
   app.get("/api/isloggedin", isLoggedIn);
 
+  //Logout
+  app.get("/api/logout", (req, res) => {
+    req.session.destroy();
+    res.status(200).send({ message: "Logged out!" });
+  });
 
-  //-----------------------------POST VALIDATION---------------------------
+  //-----------------------------POSTING---------------------------
 
+  //Post validation
   const postValidation = [
     check("title")
       .not()
       .isEmpty()
       .withMessage("Please add title."),
-      check("price")
-        .not()
-        .isEmpty()
-        .withMessage("Please add a price."),
+    check("price")
+      .not()
+      .isEmpty()
+      .withMessage("Please add a price."),
     check("category")
       .not()
       .isEmpty()
       .withMessage("Please add a category."),
-      check("image")
-        .not()
-        .isEmpty()
-        .withMessage("Please upload image before posting."),
+    check("image")
+      .not()
+      .isEmpty()
+      .withMessage("Please upload image before posting."),
     check("phone")
       .not()
       .isEmpty()
@@ -160,9 +174,10 @@ module.exports = function(app) {
     check("city")
       .not()
       .isEmpty()
-      .withMessage("Please add a city."),
+      .withMessage("Please add a city.")
   ];
 
+  //Add post if validation is successful
   function addPost(req, res) {
     var errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -174,10 +189,10 @@ module.exports = function(app) {
       post
         .save()
         .then(post => {
-          res.json(post);
+          res.status(200).json(post);
         })
         .catch(error => {
-          res.json(error);
+          res.status(500).json(error);
         });
     } else {
       return res.send({ error: "You are not logged in!" });
@@ -185,77 +200,80 @@ module.exports = function(app) {
   }
   app.post("/api/addpost", postValidation, addPost);
 
-  //-----------------------------VOTE---------------------------
 
-  app.post("/api/postupvote/:id", isLoggedIn, (req, res) => {
-    Post.findById(req.params.id).then(function(post) {
-      post.vote = post.vote + 1;
-      post.save().then(function(post) {
-        res.send(post);
-      });
-    });
-  });
-
-//-----------------------------SHOW POSTS---------------------------
-
+  //Display posts from database
   function showPosts(req, res) {
     Post.find()
       .populate("user", ["username", "email"])
-      .then
-      (post => {
-        res.json(post)
+      .then(post => {
+        res.status(200).json(post);
       })
       .catch(error => {
-        res.json(error);
+        res.status(500).json(error);
       });
   }
-
-
   app.get("/api/categories/:category", showPosts);
 
 
-//-----------------------------SHOW ITEM---------------------------
-function showItem(req, res) {
-  Post.find()
-    .populate("user", ["username", "email"])
-    .then(post => {
-      res.json(post)
-    })
-    .catch(error => {
-      res.json(error);
-    });
-}
-
-app.get("/api/categories/:category/:item", showItem);
-
-
-//-----------------------------SHOW USER---------------------------
-
-function showUser(req, res) {
-  User.find()
-    .then(user => {
-      res.json(user)
-    })
-    .catch(error => {
-      res.json(error);
-    });
-}
-
-app.get("/api/users/:user/details", showUser);
-
-//-----------------------------CHECK LOGGED IN USER--------------------------
-
-function checkUser(req, res, next) {
-  if (req.session.isLoggedIn) {
-    res.json(req.session.user.username)
-  } else{
-    res.send({ message: "You are not logged in!" })
+  //Display single item from database
+  function showItem(req, res) {
+    Post.find()
+      .populate("user", ["username", "email"])
+      .then(post => {
+        res.status(200).json(post);
+      })
+      .catch(error => {
+        res.status(500).json(error);
+      });
   }
-}
-app.get("/api/profile", checkUser);
 
-  app.get("/api/logout", (req, res) => {
-    req.session.destroy();
-    res.send({ message: "Logged out!" });
+  app.get("/api/categories/:category/:item", showItem);
+
+
+  //Delete post
+  app.delete("api/delete/:id", function(req, res) {
+    var id = req.params.id;
+    Item.remove({ _id: id })
+      .exec()
+      .then(data => {
+        res.status(200).json({ data: data, message: "Post deleted!" });
+      })
+      .catch(err => {
+        res.status(500).json(err);
+      });
+    return res.status(200);
   });
+
+
+  //shows all categories available
+  app.get('/api/categories', function(req, res){
+    res.json(categoriesData)
+  })
+  //-----------------------------USERS---------------------------
+
+  //Show user details
+  function showUser(req, res) {
+    User.find()
+      .then(user => {
+        res.status(200).json(user);
+      })
+      .catch(error => {
+        res.status(500).json(error);
+      });
+  }
+
+  app.get("/api/users/:user/details", showUser);
+
+
+  //Check which user is logged in
+  function checkUser(req, res, next) {
+    if (req.session.isLoggedIn) {
+      res.json(req.session.user.username);
+    } else {
+      res.send({ message: "You are not logged in!" });
+    }
+  }
+  app.get("/api/profile", checkUser);
+
+  app.get("/", (req, res) => res.json("Backend connected"));
 };

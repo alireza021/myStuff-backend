@@ -4,9 +4,8 @@ const bodyparser = require("body-parser");
 const session = require("express-session");
 const cors = require("cors");
 const controller = require("./controller");
-const categoriesData = require('./data/categories.js')
-const citiesData = require('./data/cities.js')
-const itemsData = require('./data/items.js')
+
+
 
 const app = express();
 
@@ -17,7 +16,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://webapi-frontend.herokuapp.com"
+      "https://webapi-frontend.herokuapp.com/"
     ],
     methods: ["GET", "HEAD", "POST", "DELETE", "PUT", "PATCH", "OPTIONS"],
     credentials: true //allow setting of cookies
@@ -34,16 +33,6 @@ app.use(
   })
 );
 controller(app);
-
-
-//api
-//shows all categories available
-app.get('/api/categories', function(req, res){
-  res.json(categoriesData)
-})
-
-
-
 
 
 

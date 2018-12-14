@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
+
+//User schema
 var UserSchema = new Schema({
   firstname: {
     type: String,
@@ -26,14 +28,10 @@ var UserSchema = new Schema({
     type: Date,
     required: true,
     default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    required: true,
-    default: Date.now
   }
 });
 
+//hash passwords
 UserSchema.methods.hashPassword = function(password) {
   return bcrypt.hashSync(password, 12);
 };

@@ -4,7 +4,8 @@
   "description": "backend for mystuff webapp",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "test": "jest"
   },
   "author": "Alireza",
   "license": "ISC",
@@ -17,5 +18,8 @@
     "express-validator": "^5.1.2",
     "mongoose": "^5.0.17",
     "nodemon": "^1.18.6"
+  },
+  "devDependencies": {
+    "jest": "^23.6.0"
   }
 }
