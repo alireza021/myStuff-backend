@@ -16,7 +16,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://webapi-frontend.herokuapp.com/"
+      "https://webapi-frontend.herokuapp.com"
     ],
     methods: ["GET", "HEAD", "POST", "DELETE", "PUT", "PATCH", "OPTIONS"],
     credentials: true //allow setting of cookies
